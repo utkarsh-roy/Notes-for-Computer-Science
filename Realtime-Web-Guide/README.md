@@ -36,6 +36,34 @@ sequenceDiagram
     Note over Client: Connection remains open...
 ```
 
+### 💻 Code Example: The `EventSource` API
+
+```javascript
+// 1. Connect to the server
+const eventSource = new EventSource('/my-stream-url');
+
+// 2. OPEN: Connection established
+eventSource.onopen = () => {
+  console.log('✅ Connection to server opened.');
+};
+
+// 3. MESSAGE: Receive data
+eventSource.onmessage = (event) => {
+  const data = JSON.parse(event.data);
+  console.log('📩 New event received:', data);
+};
+
+// 4. ERROR: Handle connection issues
+eventSource.onerror = (error) => {
+  console.error('❌ EventSource failed:', error);
+  // EventSource automatically attempts to reconnect
+};
+
+// 5. CLOSE: Stop listening
+// eventSource.close();
+```
+
+
 ### Where & Why
 *   **Use Cases**:
     *   **News Feeds / Stock Tickers**: You just need to *receive* updates, not send them back.
@@ -76,6 +104,36 @@ sequenceDiagram
     Client->>Server: "Good!"
 ```
 
+### 💻 Code Example: The `WebSocket` API
+
+```javascript
+// 1. Connect
+const socket = new WebSocket('ws://localhost:8080');
+
+// 2. OPEN: Socket is ready
+socket.onopen = (event) => {
+  console.log('✅ WebSocket is open now.');
+  // Send a message
+  socket.send('Hello Server!'); 
+};
+
+// 3. MESSAGE: Receive data
+socket.onmessage = (event) => {
+  console.log('📩 Message from server:', event.data);
+};
+
+// 4. ERROR: Handle errors
+socket.onerror = (error) => {
+  console.error('❌ WebSocket error:', error);
+};
+
+// 5. CLOSE: Connection closed
+socket.onclose = (event) => {
+  console.log('⚠️ WebSocket closed:', event.reason);
+};
+```
+
+
 ### Where & Why
 *   **Use Cases**:
     *   **Chat Applications**: WhatsApp Web, Slack, Discord.
@@ -110,6 +168,36 @@ flowchart LR
     end
     Client --> QUIC_Connection
 ```
+
+### 💻 Code Example: The `WebTransport` API
+
+```javascript
+async function initWebTransport() {
+  // 1. Connect
+  const transport = new WebTransport('https://example.com/webtransport-endpoint');
+
+  // 2. READY: Wait for connection
+  await transport.ready;
+  console.log('✅ WebTransport ready!');
+
+  // 3. STREAMS: Open a reliable stream
+  const stream = await transport.createBidirectionalStream();
+  const writer = stream.writable.getWriter();
+  await writer.write(new TextEncoder().encode("Hello reliable world"));
+
+  // 4. DATAGRAMS: Send unreliable data (fast!)
+  const datagramWriter = transport.datagrams.writable.getWriter();
+  datagramWriter.write(new TextEncoder().encode("Player Position: 10,20"));
+
+  // 5. CLOSED: Handle disconnection
+  transport.closed.then(() => {
+    console.log('⚠️ Connection closed cleanly.');
+  }).catch((error) => {
+    console.error('❌ Connection closed abruptly:', error);
+  });
+}
+```
+
 
 ### Where & Why
 *   **Use Cases**:
@@ -153,6 +241,39 @@ sequenceDiagram
     
     Note over PeerA, PeerB: Video/Audio flows directly!
 ```
+
+### 💻 Code Example: The `RTCPeerConnection` API
+
+```javascript
+// 1. Setup Config (STUN servers found a path)
+const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+const peerConnection = new RTCPeerConnection(config);
+
+// 2. ICE CANDIDATE: Found a network path
+peerConnection.onicecandidate = (event) => {
+  if (event.candidate) {
+    // Send this candidate to the other peer via your Signaling Server
+    sendToOtherPeer('candidate', event.candidate);
+  }
+};
+
+// 3. CONNECTION STATE: Monitor health
+peerConnection.onconnectionstatechange = () => {
+    console.log('🔌 Connection State:', peerConnection.connectionState);
+};
+
+// 4. TRACK: Receive video/audio stream
+peerConnection.ontrack = (event) => {
+  console.log('🎥 Received remote stream');
+  const remoteVideo = document.getElementById('remoteVideo');
+  remoteVideo.srcObject = event.streams[0];
+};
+
+// 5. Add local stream to connection
+// const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+// stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+```
+
 
 ### Where & Why
 *   **Use Cases**:
