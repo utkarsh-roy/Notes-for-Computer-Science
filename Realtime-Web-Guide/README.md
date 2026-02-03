@@ -306,4 +306,4 @@ peerConnection.ontrack = (event) => {
 
 ---
 
-*This guide was generated for the [Notes-for-Computer-Science](https://github.com/utkarsh-roy/Notes-for-Computer-Science) repository.*
+*[Notes-for-Computer-Science](https://github.com/utkarsh-roy/Notes-for-Computer-Science) repository.*
