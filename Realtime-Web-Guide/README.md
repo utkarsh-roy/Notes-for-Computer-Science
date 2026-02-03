@@ -102,7 +102,7 @@ Multiple streams can be opened over one connection. If one stream drops a packet
 
 ```mermaid
 flowchart LR
-    subgraph QUIC_Connection [Single QUIC Connection (UDP)]
+    subgraph QUIC_Connection ["Single QUIC Connection (UDP)"]
         d1[Datagram: Player Pos] -.->|Unreliable| Server
         d2[Datagram: Voice Data] -.->|Unreliable| Server
         s1[Stream: Chat Msg] -->|Reliable| Server
